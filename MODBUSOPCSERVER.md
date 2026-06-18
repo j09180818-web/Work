@@ -1,0 +1,53 @@
+這軟體打開後依樣新增一個專案
+並設定好名稱存檔後
+在Address Space可以建立
+Device(裝置)
+裝置可以設定通訊方式如果是走RS232(這邊意旨RTU)但必須記得這邊可以設定的通訊是必須先在下方的
+Serial Ports新增一個port
+
+Device
+假設設定TCP
+設定好IP UID通常為1 Port通常為502
+TCP Sockets意思是以建立的連線:1即可
+Re-open就是斷線後重啟
+
+RTU則是照著剛剛設定的選擇需求
+
+設定好連線方式後
+下方Type通常就是Default Device Type
+
+然後Use Zert based addressing就不用多說了
+下面還有一個bit的
+簡單說就是對應的記憶體位子從0開始算還是1
+建議勾選0這樣40001的位子才會是0比較符合工程師記憶
+當然如果勾選後就是變成1=400001納今天如果項目記憶體是401101你就不用運算了，我個人都是從0開始所以會變成401101-400001而已概念沒變
+勾選Disable tags at invaild addresses=
+當位址無效時，停用(Tag Disable)該點位
+
+再來設定
+1.Base ScanRare 輪巡時間
+Send/Read 跟 Recv/Write 的兩個Timeout，其實就是ResponseTimeout分開設定而已概念一樣
+
+Send/Recv Delay=發送後切換接收的等待時間
+Frame retry cont=通訊失敗後重新發送幾次
+
+下面有Timeout suspend是指剛剛失敗次數全部都失敗後這邊算1次失敗累積滿停止通訊
+直到下一個參數Suspend period斷線後多少時間才重新連線
+
+
+
+
+接下來要新增並設定Item
+裡面就是基礎資料格式跟記憶體位子
+重點在設定好一個假設是D0記憶體位子1
+滑鼠右鍵Multipy可以連續建立有關連的物件
+第一格First number是物件名稱號碼對應Base Text
+名稱=BaseText+Firstnumber
+第二格numeric places=位數設定2=03設定3=003
+再來是從這個數字建立幾個3設定6個會一路設定道數字8
+下面是起始記憶體位子3假設記憶體設定1那8記憶體就會是6當然這跟下面的addressincrement有關
+這軟體設定好後按下Monitor view就會連線了上方的小眼鏡就是這按鈕
+
+# MODBUS-OPC可以讀取監控設備狀態，而此軟體僅限於資料讀取無介面可寫入資料，但可以使用OPC Client寫入經過OPC再丟給設備
+當開啟MODBUOPC時候可以使用此軟體針對設備點位進行寫入之動作
+其原理是讀取OPC協定資料

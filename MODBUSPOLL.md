@@ -1,3 +1,5 @@
+# MODbudPull主要功能當作MODBUS功能測試可以對點寫入無論是連續或是單點的讀寫
+
 Modbuspoll軟體
 此軟體主要可以做為測試Modbus的功能為主不是監控
 首先設備分為
