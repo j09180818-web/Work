@@ -106,6 +106,12 @@ Html框架中的文字
 | ------- | ---- | -------- |
 | `id`    | 唯一代號 | 單一指定元素   |
 | `class` | 分類名稱 | 多個元素共用樣式 |
+<div class="card active warning"></div> 
+card
+active
+warning
+多個CLass
+
 沒有class id 可以單純透過div來找區塊但這會使的所有區塊被搜尋到就像是最基底的物件一樣具有共通的性質
 Class假設我取名子叫做 PLC 可以重複例如我很多機器都是PLC所以Class用PLC去找到這些機器
 而ID就像身分證我設定ID在這Html唯一性所以一定能找到指定的這個區塊
@@ -369,7 +375,64 @@ const buttonsInAreaA = areaA.querySelectorAll("button");
 | CSS        | 外觀樣式  |
 | JavaScript | 互動與事件 |
 
-4. name 跟 id 不一樣
+4. name 跟 id 不一樣，name表單的是資料欄位名稱
+| 項目       | `id`                         | `name`      |
+| -------- | ---------------------------- | ----------- |
+| 中文理解     | 元素唯一代號                       | 表單資料欄位名稱    |
+| 主要用途     | CSS / JavaScript / label 找元素 | form 送資料給後端 |
+| 是否應唯一    | 是，同一頁不應重複                    | 不一定         |
+| CSS 怎麼選  | `#deviceNameInput`           | 通常不用它選      |
+| JS 怎麼找   | `getElementById()`           | 表單資料或特殊情況使用 |
+| 送出表單是否需要 | 不一定                          | 需要          |
+
+
+5. HTML的路徑
+| 標籤         | 屬性     | 用途              |
+| ---------- | ------ | --------------- |
+| `<img>`    | `src`  | 圖片位置            |
+| `<a>`      | `href` | 連結位置            |
+| `<link>`   | `href` | CSS 檔案位置        |
+| `<script>` | `src`  | JavaScript 檔案位置 |
+<img src="images/logo.png">
+<link rel="stylesheet" href="style.css">
+<script src="app.js"></script>
+<a href="about.html">關於我們</a>
+從 index.html 所在資料夾開始找
+style.css      → 跟 index.html 同一層
+app.js         → 跟 index.html 同一層
+about.html     → 跟 index.html 同一層
+images/logo.png → 進入 images 資料夾找 logo.png
+./ 代表目前資料夾
+../ 代表上一層資料夾
+/ 開頭代表網站根目錄
+logo.png
+→ 同一層找 logo.png
+
+images/logo.png
+→ 進入 images 資料夾找 logo.png
+
+./images/logo.png
+→ 從目前資料夾進入 images 找 logo.png
+
+../images/logo.png
+→ 回上一層，再進入 images 找 logo.png
+
+/images/logo.png
+→ 從網站根目錄開始找 images/logo.png
+
+https://example.com/logo.png
+→ 從外部網站找
+
+
+#areaA
+→ 找 id="areaA" 的框架
+
+.start-button
+→ 找 class="start-button" 的元素
+
+#areaA .start-button
+→ 找 id="areaA" 框架裡面，class="start-button" 的元素
+
 
 
 下方為以後查閱用的
