@@ -308,3 +308,174 @@ warning
 5. CSS 會根據目前 DOM 狀態自動重新套用。
 
 7. fetch API  
+API 是應用程式與應用程式之間的介面。
+它定義了雙方如何呼叫功能、
+交換資料以及互相溝通的規則。
+而實際通訊時，
+通常會搭配特定的通訊協議與資料格式。
+
+Fetch就是使用以下
+HTTP
+HTTPS
+兩種通訊協議
+API 跟 Fetch API 是兩個不同層級的東西。
+瀏覽器提供給 JavaScript 的 API幫 JavaScript 發送 HTTP Request
+JavaScript
+    ↓
+Fetch API
+    ↓
+HTTP
+    ↓
+後端 API
+    ↓
+資料庫
+/////////////////////////////////////////
+瀏覽器
+↓
+JavaScript
+
+↓ HTTP
+
+Web API(C#)
+
+↓ Entity Framework(EF)是一套讓 C# 透過物件操作資料庫的 ORM 框架。
+
+SQL Server
+///ADO.NET////
+我以前都是透過這種方式值對街對資料庫動作而Entity FrameworkEntity是包裝了以後提供我操作的物件
+
+JavaScript 透過 Fetch API
+向外部服務發送 HTTP Request，
+並與後端 API 進行資料交換。
+JavaScript 在瀏覽器中如果要透過 HTTP 與外部系統溝通，
+通常會使用 Fetch API 發送 Request，
+去呼叫外部提供的 Web API。
+
+JavaScript 在瀏覽器中如果要透過 HTTP 與外部系統溝通，
+
+通常會使用 Fetch API 發送 Request，
+去呼叫外部提供的 Web API。
+
+架構：
+
+JavaScript
+↓
+Fetch API
+↓
+HTTP/HTTPS
+↓
+Web API
+↓
+其他系統
+
+例如：
+
+JavaScript
+↓
+Fetch
+↓
+ASP.NET Core API
+↓
+SQL Server
+
+注意：
+
+不是所有 JavaScript 操作都需要 Fetch。
+
+例如：
+
+button.textContent = "啟動";
+
+這只是操作 DOM，不需要對外通訊。
+
+只有以下情況通常需要 Fetch：
+
+* 取得外部資料
+* 傳送資料到伺服器
+* 呼叫登入 API
+* 查詢機台狀態
+* 取得天氣資料
+
+例如：
+
+按下按鈕
+↓
+JavaScript
+↓
+Fetch
+↓
+機台 API
+↓
+取得狀態
+↓
+更新畫面
+
+PLC 類比：
+
+HTML
+= 操作面板
+
+JavaScript
+= 操作邏輯
+
+Fetch API
+= 通訊模組
+
+HTTP
+= 通訊協議
+
+Web API
+= 對方設備提供的通訊介面
+
+資料庫
+= 資料儲存區
+
+一句話：
+
+JavaScript 在瀏覽器中若要透過 HTTP 與外部系統交換資料，
+最常見的方式就是使用 Fetch API 去呼叫 Web API。
+
+
+
+
+# 額外備註
+C# 程式依照 API 規範呼叫功能。
+API 定義了：
+
+* 可以使用哪些功能
+* 需要哪些參數
+* 回傳哪些資料
+
+當 C# 呼叫 API 時，
+會透過指定的 Protocol（通訊協議）
+以及 Format（資料格式）
+
+將資料傳送到目標系統。
+
+因此：
+
+API = 功能介面
+
+Protocol = 資料怎麼傳
+
+Format = 資料長什麼樣子
+
+目標系統收到符合規範的資料後，
+執行對應功能並回傳結果。
+
+
+HTML 會形成樹狀結構(DOM Tree)
+
+CSS 與 JavaScript
+透過 Selector 規則
+
+(ID、Class、Tag、屬性、層級關係)
+
+在這棵樹中找到目標元素。
+樹狀架構
+<div class="app">
+    <div class="machine-card">
+        <button>啟動</button>
+    </div>
+</div>
+
