@@ -131,7 +131,8 @@ JavaScript：
 後執行的修改通常會蓋掉前面的結果
 CSS 是規則互相競爭
 JavaScript 是程式照順序執行
-而通常javaScript會蓋掉Css
+如果 JavaScript 改的是 inline style，通常優先權會比一般 CSS 高。
+但不是所有 JavaScript 都一定蓋掉 CSS。
 
 3. DOM 操作完整流程
 Document Object Model
@@ -155,6 +156,7 @@ document
       │  └─ 停止
       └─ button#startBtn
          └─ 啟動
+
 這種架構DOM
 1. HTML 建立畫面元素
 2. JavaScript 取得 DOM 元素
@@ -221,13 +223,7 @@ statusText.style.color = "green";
 使用者開啟網頁
         │
         ▼
-瀏覽器讀取 HTML
-        │
-        ▼
-建立 DOM 樹
-        │
-        ▼
-載入 CSS 並套用樣式
+瀏覽器讀取 HTML一邊讀取一邊建立 DOM 樹並載入 CSS 並套用樣式
         │
         ▼
 載入 JavaScript
@@ -270,6 +266,15 @@ CSS：
 JavaScript：
 主動程式
 執行後主動查找、修改、控制 DOM 元素
+
+# ###重點
+如果 DOM 建立到一半就執行 JavaScript，
+而 JavaScript 要找的元素在 HTML 後面還沒建立，
+那就會找不到，也不會成功綁定事件。
+所以通常前面再DOM建立的時候雖然會就載入CSS
+但是JAVASCRIPT如果放在中間或前面後續才建立的DOM就會造成無法使用
+因此JAVASCRIPT必須在DOM建立後才執行
+CSS 規則會被瀏覽器保留，之後只要有符合選擇器的 DOM 元素出現，就會套用樣式。
 
 
 
@@ -341,6 +346,15 @@ DOM 元素本身不是資料
 
 
 5. fetch 呼叫 API
+fetch 本身一定是非同步。
+不用 await，它會先送出請求，程式繼續往下跑。
+用 await，只有目前 async 函式內會等結果回來後才往下跑。
+fetch 本身是非同步，不會卡住主執行緒。
+但因為它不會等待資料回來才繼續往下跑，
+所以如果後面的程式需要使用 API 回傳資料，
+就必須用 await 或 then 控制流程，
+確保資料回來後再處理。
+
 前端 JavaScript
 ↓
 用 fetch 向後端 API 發送請求
@@ -372,7 +386,8 @@ fetch 呼叫 API
 response.json() 把 JSON 轉成 JavaScript 物件
 ↓
 data 就是前端可使用的資料
-實務上常看到非同步的async / await
+
+# 實務上常看到的async / await
 async function loadMachines() {
     const response = await fetch("https://example.com/api/machines");
     const data = await response.json();
@@ -435,7 +450,16 @@ loadMachines();
 顯示
 機台A：running
 機台B：stop
+# then的使用
 
+fetch("/api/users")
+    .then(response => response.json())
+    .then(users => {
+        console.log(users);
+        showUsers(users);
+    });
+資料回來後，才執行 then 裡面的資料處理
+    
 # POST 送資料給 API
 async function addMachine() {
     const machineData = {
@@ -677,7 +701,406 @@ JSON 是「文字格式」
 JavaScript 物件是「程式裡的物件資料」所以KEY這邊不是文字格式
 
 
+# 方式一-透過既有物件承接資料
+Html
+<h1>目前機台資訊</h1>
+<p>名稱：<span id="machineName"></span></p>
+<p>狀態：<span id="machineStatus"></span></p>
+<p>溫度：<span id="machineTemperature"></span></p>
+<script src="js/script.js"></script>
+machineName
+machineStatus
+machineTemperature
+有這三個放的欄位
+
+JavaScript
+async function loadMachineData() {
+    // 讀取 JSON 檔案
+    const response = await fetch("data/machines.json");
+
+    // 把 JSON 轉成 JavaScript 陣列
+    const machines = await response.json();
+
+    // 先取第一筆機台資料做示範
+    const machine = machines[0];
+
+    // 把資料塞進已經存在的 HTML 元素
+    document.getElementById("machineName").textContent = machine.name;
+    document.getElementById("machineStatus").textContent = machine.status;
+    document.getElementById("machineTemperature").textContent = machine.temperature + " °C";
+}
+// 執行資料載入
+loadMachineData();
+最後會呈現
+名稱：機台A
+狀態：running
+溫度：32 °C
+# 方式二：JavaScript 自己生成 HTML 元素
+<h1>機台清單</h1>
+<div id="machineList"></div>
+<script src="js/script.js"></script>
+等等 JavaScript 產生的機台卡片都放進這裡
+CSS檔案
+/* 每一張機台卡片的外觀 */
+.machine-card {
+    border: 1px solid black;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+/* 機台名稱 */
+.machine-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* 狀態文字的基本格式 */
+.machine-status {
+    font-weight: bold;
+}
+
+/* running 狀態顯示綠色 */
+.running {
+    color: green;
+}
+
+/* stop 狀態顯示灰色 */
+.stop {
+    color: gray;
+}
+
+/* alarm 狀態顯示紅色 */
+.alarm {
+    color: red;
+}
+有了CSS控制屬性後透過JAVAScript去建立
+async function loadMachineList() {
+    // 讀取 JSON 檔案
+    const response = await fetch("data/machines.json");
+
+    // 把 JSON 轉成 JavaScript 陣列
+    const machines = await response.json();
+
+    // 取得畫面上的容器
+    const machineList = document.getElementById("machineList");
+
+    // 清空舊資料，避免重複載入時資料一直疊加
+    machineList.innerHTML = "";
+
+    // 逐筆讀取機台資料
+    machines.forEach(function (machine) {
+        // 建立外層卡片 div
+        const card = document.createElement("div");
+
+        // 加上固定 class，讓 CSS 可以控制外觀
+        card.classList.add("machine-card");
+
+        // 建立機台名稱 h2
+        const title = document.createElement("h2");
+
+        // 加上固定 class
+        title.classList.add("machine-title");
+
+        // 把 JSON 的 name 放進 h2
+        title.textContent = machine.name;
+
+        // 建立狀態 p
+        const status = document.createElement("p");
+
+        // 加上狀態基本 class
+        status.classList.add("machine-status");
+
+        // 再依照 JSON 的 status 加上 running / stop / alarm
+        status.classList.add(machine.status);
+
+        // 把狀態文字放進 p
+        status.textContent = "狀態：" + machine.status;
+
+        // 建立溫度 p
+        const temperature = document.createElement("p");
+
+        // 把溫度資料放進 p
+        temperature.textContent = "溫度：" + machine.temperature + " °C";
+
+        // 把 title 加進 card
+        card.appendChild(title);
+
+        // 把 status 加進 card
+        card.appendChild(status);
+
+        // 把 temperature 加進 card
+        card.appendChild(temperature);
+
+        // 最後把整張 card 加到畫面容器 machineList 裡
+        machineList.appendChild(card);
+    });
+}
+// 執行資料載入
+loadMachineList();
+JavaScript 不是亂生成畫面。
+它是依照你寫好的 DOM 結構規則生成，
+再交給 CSS class 決定外觀。
+
+# 標準範例：script.js
+// ===============================
+// 1. API / 資料路徑設定區
+// ===============================
+
+// JSON 檔案路徑
+const machineApiUrl = "data/machines.json";
+
+
+// ===============================
+// 2. DOM 元素取得區
+// ===============================
+
+// 取得畫面上用來放機台清單的容器
+const machineList = document.getElementById("machineList");
+
+// 取得重新載入按鈕
+const reloadBtn = document.getElementById("reloadBtn");
+
+
+// ===============================
+// 3. 主功能 function 區
+// ===============================
+
+// 讀取機台資料
+async function loadMachines() {
+    // 呼叫 JSON / API
+    const response = await fetch(machineApiUrl);
+
+    // 如果讀取失敗，就停止
+    if (!response.ok) {
+        console.log("資料讀取失敗，狀態碼：", response.status);
+        return;
+    }
+
+    // 將 JSON 轉成 JavaScript 陣列
+    const machines = await response.json();
+
+    // 把資料渲染到畫面
+    renderMachineList(machines);
+}
+
+
+// 將機台資料顯示到畫面
+function renderMachineList(machines) {
+    // 先清空舊資料
+    machineList.innerHTML = "";
+
+    // 逐筆建立畫面元素
+    machines.forEach(function (machine) {
+        // 建立單張卡片
+        const card = createMachineCard(machine);
+
+        // 把卡片加入畫面容器
+        machineList.appendChild(card);
+    });
+}
+
+
+// 建立單張機台卡片
+function createMachineCard(machine) {
+    // 建立外層 div
+    const card = document.createElement("div");
+    card.classList.add("machine-card");
+
+    // 建立機台名稱
+    const title = document.createElement("h2");
+    title.textContent = machine.name;
+
+    // 建立機台狀態
+    const status = document.createElement("p");
+    status.textContent = "狀態：" + machine.status;
+    status.classList.add(machine.status);
+
+    // 建立機台溫度
+    const temperature = document.createElement("p");
+    temperature.textContent = "溫度：" + machine.temperature + " °C";
+
+    // 組合卡片
+    card.appendChild(title);
+    card.appendChild(status);
+    card.appendChild(temperature);
+
+    // 回傳建立好的卡片
+    return card;
+}
+
+
+// ===============================
+// 4. 事件綁定區
+// ===============================
+
+// 當使用者按下重新載入按鈕時，重新讀取資料
+reloadBtn.addEventListener("click", function () {
+    loadMachines();
+});
+
+
+// ===============================
+// 5. 初始化執行區
+// ===============================
+
+// 網頁第一次開啟時，先載入一次資料
+loadMachines();
+我問了GPT以下問題
+所以我所想的架構應該是JAVASCRIPT的架構
+1.前面會先取得物件就像是 C#宣告變數或new物件 
+2.撰寫會需要使用的Function 
+3.綁定事件那些事件會觸發Function在這邊綁定 
+4.初始化區域某些開啟必須執行一次的功能在這邊 掃描到這邊就算完成了後面就剩下觸發事件了
+另外 那我想問JavaScript有需要建立像是Timer或是Thread的重複掃描部分嗎 另外一樣式程式語言肯定也有死迴圈造成當機的機會對吧?
+# JAVASCRIPT的架構大概會是如下
+1.取得畫面物件
+2.撰寫 function
+3.綁定事件
+4.初始化執行
+5.script.js 掃描完成
+6.後面等待事件 / Timer / API 回應觸發
+另外JAVASCRIP沒有一直掃描只有在<script src="js/script.js"></script>讀取一次
+script.js 載入
+│
+├─ 1. 取得 DOM 物件
+│
+├─ 2. 宣告 function
+│
+├─ 3. 綁定事件
+│
+├─ 4. 初始化執行一次
+│
+└─ 5. 載入完成，等待觸發
+       │
+       ├─ 使用者 click / input / submit
+       ├─ setInterval 定時觸發
+       ├─ setTimeout 延遲觸發
+       └─ fetch API 回應後繼續執行
+
+script.js 從上到下執行一次
+初始化和事件綁定完成後
+後面就不是一直掃描
+而是等待事件、Timer、API 回應來觸發 function
+重點
+C# Timer      ≈ JavaScript setInterval
+C# UI 卡死    ≈ JavaScript 死迴圈卡住瀏覽器
+C# Thread     ≈ JavaScript Web Worker，但初期不用深入
+
 
 7. 瀏覽器開發者工具 DevTools
+DevTools 可以理解成：
+瀏覽器內建的前端除錯工具。
+你目前學前端，DevTools 主要用來看這幾件事：
+. HTML / DOM 結構
+. CSS 是否有套用成功
+. JavaScript 有沒有錯誤
+. fetch API 有沒有成功
+. JSON 回傳資料長什麼樣
+如何開啟DevTools
+快捷F12
+or
+右鍵
+↓
+檢查 / Inspect
+| 分頁          | 功能                                       |
+| ----------- | ---------------------------------------- |
+| Elements    | 看 HTML / DOM / CSS                       |
+| Console     | 看 JavaScript 訊息與錯誤                       |
+| Sources     | 看 JavaScript 檔案與中斷點                      |
+| Network     | 看 API / JSON / CSS / JS 載入狀況             |
+| Application | 看 localStorage / sessionStorage / cookie |
+
+# Elements：看 HTML / DOM / CSS
+1. 檢查某個 HTML 元素是否存在
+2. 看 JavaScript 動態產生的元素有沒有成功加進來
+3. 看 class / id 有沒有正確
+4. 看 CSS 有沒有套用成功
+5. 直接暫時修改 HTML / CSS 看效果
+舉個例子
+const card = document.createElement("div");
+card.classList.add("machine-card");
+card.textContent = "機台A";
+machineList.appendChild(card);
+我們就可以去Elements看
+<div id="machineList">
+    <div class="machine-card">機台A</div>
+</div>
+如果看不到代表有問題
+JavaScript 沒執行
+machineList 沒抓到
+appendChild 沒執行
+資料根本沒進來
+就是可以除錯
+
+# Console：看 JavaScript 訊息與錯誤
+# Network：看 API / JSON / 檔案載入還有 API 有沒有被呼叫 OR HTTP 狀態碼是 200、404 還是 500 OR Request URL 是否正確 OR 後端回傳的 JSON 長什麼樣 OR CSS / JS 檔案有沒有載入失敗
+# Sources：看 JS 檔案與中斷點
+# Application：看瀏覽器儲存資料
+
+總結
+Elements：看 DOM 和 CSS
+Console：看 JavaScript 錯誤與 log
+Network：看 API / JSON / 檔案有沒有成功載入
+Sources：下中斷點看 JS 執行流程
+Application：看瀏覽器儲存資料
+
+畫面沒出來
+↓
+先看 Console 有沒有錯
+↓
+再看 Network 有沒有載到資料
+↓
+再看 Elements 有沒有產生 DOM
+
+DevTools 是前端的 Visual Studio Debugger。
+它讓你看到 HTML、CSS、JavaScript、API 到底哪一層出問題。
+
 
 8. 前後端整體資料流
+前後端資料流的核心是：
+前端不直接碰資料庫
+前端透過 API 跟後端要資料或送資料
+後端處理完後用 JSON 回傳
+前端再把 JSON 轉成畫面
+
+
+HTML        = 畫面結構 / 框架
+CSS         = 樣式外觀
+JavaScript  = 畫面互動、事件、資料請求
+API         = 前後端資料交換入口
+後端        = 商業邏輯、資料處理、資料庫存取
+Database    = 真正資料儲存位置
+前端不是直接操作後端資料，而是透過 API 這個指定出口交換資料。
+
+# Request / Response
+fetch 呼叫 API，但還要知道一次 API 溝通其實分兩段：
+Request  = 前端送出去的請求
+Response = 後端回傳的結果
+
+# HTTP Method
+GET    = 查詢資料
+POST   = 新增資料
+PUT    = 修改資料
+DELETE = 刪除資料
+
+# URL 路由
+API 會有指定路徑這些路徑就是前端呼叫後端的「入口地址」。
+
+# 狀態碼
+例如
+200 = 成功
+404 = 找不到
+500 = 後端錯誤
+
+# 權限 / Token
+正式系統通常不是每個 API 都能直接呼叫。
+可能需要
+登入
+Token
+權限驗證
+
+
+如果不用非同步，或寫了耗時同步程式，
+JavaScript 會卡住瀏覽器主執行緒。
+結果不是只有某個事件卡住，
+而是 UI 更新、點擊事件、輸入事件都可能沒反應。
