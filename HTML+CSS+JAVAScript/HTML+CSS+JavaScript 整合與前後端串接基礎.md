@@ -599,6 +599,84 @@ return StatusCode(500, ...); // 500
 
 
 6. JSON 資料顯示到畫面
+前端最常見的流程
+後端 API 回傳 JSON
+↓
+JavaScript 接收 JSON
+↓
+JavaScript 解析資料
+↓
+建立 HTML 元素
+↓
+顯示到畫面上
+
+data/machines.json假設資料
+
+[
+    {
+        "id": 1,
+        "name": "機台A",
+        "status": "running",
+        "temperature": 32
+    },
+    {
+        "id": 2,
+        "name": "機台B",
+        "status": "stop",
+        "temperature": 25
+    },
+    {
+        "id": 3,
+        "name": "機台C",
+        "status": "alarm",
+        "temperature": 45
+    }
+]
+# JSON可以讀取檔案也可以是後端傳過來的
+1.存成 machines.json 檔案
+2.由後端 API 直接回傳給前端
+3.暫存在程式的字串裡
+4.存在資料庫欄位裡
+
+async function loadMachineData() {
+    // 使用 fetch 讀取 JSON 檔案
+    const response = await fetch("data/machines.json");
+
+    // 把 JSON 轉成 JavaScript 可以操作的陣列或物件
+    const machines = await response.json();
+
+    // 測試看看資料有沒有成功進來
+    console.log(machines);
+}
+
+// 呼叫函式，開始讀取資料
+loadMachineData();
+讀取近來後JAVAScript的格式就會是如下
+[
+    {
+        id: 1,
+        name: "機台A",
+        status: "running",
+        temperature: 32
+    },
+    {
+        id: 2,
+        name: "機台B",
+        status: "stop",
+        temperature: 25
+    },
+    {
+        id: 3,
+        name: "機台C",
+        status: "alarm",
+        temperature: 45
+    }
+]
+兩種資料格式重點差距在於
+JSON 是「文字格式」
+JavaScript 物件是「程式裡的物件資料」所以KEY這邊不是文字格式
+
+
 
 7. 瀏覽器開發者工具 DevTools
 
