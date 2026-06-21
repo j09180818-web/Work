@@ -583,6 +583,20 @@ const response = await fetch("https://example.com/api/machines");
 | 前端收資料 | `response.json()`                    | JSON 回應轉 JS 物件 |
 | 設定格式  | `"Content-Type": "application/json"` | 告訴後端我送的是 JSON  |
 
+HTTP Response
+├─ Status Code：400 / 200 / 500 ...
+├─ Headers：Content-Type: application/json
+└─ Body：JSON 內容
+C#回傳的方法
+return Ok(...);              // 200
+return Created(...);         // 201
+return BadRequest(...);      // 400
+return Unauthorized(...);    // 401
+return Forbid();             // 403
+return NotFound(...);        // 404
+return Conflict(...);        // 409
+return StatusCode(500, ...); // 500
+
 
 6. JSON 資料顯示到畫面
 
