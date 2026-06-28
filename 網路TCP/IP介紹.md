@@ -4,6 +4,18 @@
 
 2. LAN，Local Area Network，區域網路
 只小範圍內的連結網路，而通常他們透過SWITCH連線
+補充VLAN
+| 名稱              | 說明                      |
+| --------------- | ----------------------- |
+| LAN             | 區域網路                    |
+| VLAN            | 虛擬區域網路                  |
+| LAN 重點          | 一個實際或邏輯上的區域網路           |
+| VLAN 重點         | 在 Switch 上切出多個邏輯 LAN    |
+| LAN 是否需要設定 VLAN | 不一定                     |
+| VLAN 是否等於 LAN   | 可以把它理解成「被切出來的獨立 LAN」    |
+| VLAN 之間能否直接通訊   | 通常不能                    |
+| VLAN 之間通訊需要什麼   | Router 或 Layer 3 Switch |
+
 
 3. WAN
 WAN，Wide Area Network，廣域網路
@@ -33,7 +45,7 @@ Hub 是很早期的網路設備屬於OSI的第一層實體層
 他不負責判斷資料送給誰而是用廣播的方式將資料送到所有的Port口
 
 SWitch 主要工作在OSI第二層:資料連結層
-Switch會學習美台設備的MAC address,知道Port連接哪台設備所以可以指定傳輸
+Switch會學習每台設備的MAC address,知道Port連接哪台設備所以可以指定傳輸
 因此他不會直接廣播傳送資料也不容易被其他有心人士竊取資料
 | Port   | MAC Address |
 | ------ | ----------- |
@@ -63,6 +75,15 @@ Switch 雖然會依 MAC Address 傳送資料，但遇到某些封包仍然會廣
 ARP Request
 DHCP Discover
 
+
+名稱：ARP
+ARP = Address Resolution Protocol
+中文：位址解析協定
+觀念
+ARP 不負責判斷路由。
+ARP 只負責：
+已知某個 IP
+查出那個 IP 的 MAC
 什麼是ARP 當A電腦想知道C電腦的MAC Address就會使用廣播詢問雖然不知道目標設備MAC Address但Switch會將其告知所有設備等待回應
 PC 要送 TCP 給 192.168.1.10
         ↓
@@ -99,10 +120,11 @@ Switch 只是中間幫忙轉送 Layer 2 Broadcast。
 
 
 # Gateway（閘道器）
-efault Gateway
+Default Gateway
 預設閘道
 Router
 路由器
+
 設定網路時候會看到下面這些
 | 欄位名稱            | 英文    | 用途          |
 | --------------- | ----- | ----------- |
@@ -300,3 +322,23 @@ Router / Gateway 也要有正確的網段設定或路由設定。
 ## 一句話記憶
 
 設備要去其他網段時，先交給 Gateway；Gateway 因為知道多個網段，所以能幫設備把資料轉送到正確的網段。
+
+
+Router 路由器：
+負責不同網段之間轉送封包。
+
+Gateway 閘道器：
+某台設備離開自己網段時使用的出口。
+
+路由器通常會擔任 Gateway：
+例如 PC 的 Default Gateway 設成 Router 的 LAN IP。
+
+Gateway 是一種角色：
+是其他設備把某個 IP 當作出口。
+
+Router 本身也可能需要 Gateway：
+例如 Router 要往 Internet 送資料時，會設定 Default Route。
+
+一句話：
+Router 是會轉送封包的設備；
+Gateway 是某個網段要出去時指定的出口。
